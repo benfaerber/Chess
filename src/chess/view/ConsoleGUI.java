@@ -19,12 +19,13 @@ public class ConsoleGUI
 	public void renderBoard(Game game)
 	{
 		String render = "\n  a b c d e f g h\n";
-		for (int y = 0; y < game.board.length; y++)
+		Piece[][] board = game.board.getPieceArray();
+		for (int y = 0; y <  board.length; y++)
 		{
 			render += Integer.toString(8-y);
-			for (int x = 0; x < game.board[y].length; x++)
+			for (int x = 0; x <  board[y].length; x++)
 			{
-				Piece piece = game.board[y][x];
+				Piece piece =  board[y][x];
 				render += " ";
 				if (piece == null)
 					render += isSquareWhite(x, y) ? whiteSquare : blackSquare;
@@ -35,9 +36,13 @@ public class ConsoleGUI
 			render += deadPieces(game, y);
 			render += "\n";
 		}
-		render += "\nWhite: " + game.scoreWhite + ", Black: " + game.scoreBlack;
 		//render += "\nDebug Info: " + game.stringToPoint("c7").toString();
 		System.out.println(render);
+	}
+	
+	public void showScore(Game game)
+	{
+		System.out.println("White: " + game.board.getScore(true) + ", Black: " + game.board.getScore(false));
 	}
 	
 	public String deadPieces(Game game, int rowNumber)

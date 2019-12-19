@@ -8,12 +8,14 @@ public class Piece
 	public Move[] moves;
 	public boolean hasMoved;
 	public boolean isWhite;
+	public Point position;
 	
-	public Piece(String name, boolean isWhite)
+	public Piece(String name, boolean isWhite, Point position)
 	{
 		this.name = name;
 		this.hasMoved = false;
 		this.isWhite = isWhite;
+		this.position = position;
 		
 		// Move(int up, int down, int left, int right, boolean limitDistance, int moveType, boolean mirrorWithTeam, boolean onlyOnFirstMove)
 		switch(name)
@@ -111,7 +113,7 @@ public class Piece
 	public String toString()
 	{
 		String n = isWhite ? "White" : "Black";
-		n += " " + name;
+		n += " " + name.substring(0, 1).toUpperCase() + name.substring(1) + " " + position.toString();
 		return n;
 	}
 }

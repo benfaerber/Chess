@@ -21,6 +21,16 @@ public class Board
 		board[at.y][at.x] = piece;
 	}
 	
+	public Piece[][] getPieceArray()
+	{
+		return board;
+	}
+	
+	public int getSize()
+	{
+		return board.length;
+	}
+	
 	public int getScore(boolean isWhite)
 	{
 		calculateScore();
@@ -40,6 +50,38 @@ public class Board
 		return "";
 	}
 	
+	public Board()
+	{
+		generate();
+	}
+	
+	public Board(int gameMode)
+	{
+		switch (gameMode)
+		{
+		case 0:
+			// Default board
+			generate();
+			break;
+		case 1:
+			// Chariott chess
+			generate("nnnknnnn", "nnnnnnnn");
+		case 2:
+			// Debug board
+			generate("rnbkqbnp", "        ");
+		}
+	}
+	
+	public Board(String backrow, String frontrow)
+	{
+		generate(backrow, frontrow);
+	}
+	
+	public void generate()
+	{
+		generate("rnbkqbnr", "pppppppp");
+	}
+	
 	public void generate(String backrow, String frontrow)
 	{
 		board = new Piece[8][];
@@ -52,10 +94,18 @@ public class Board
 		{
 			String ba = lookupPiece(backrow.substring(i, i+1));
 			String fr = lookupPiece(frontrow.substring(i, i+1));
-			whiteRow1[i] = new Piece(ba, true);
-			blackRow1[i] = new Piece(ba, false);
-			whiteRow2[i] = new Piece(fr, true);
-			blackRow2[i] = new Piece(fr, false);
+			if (ba != "")
+			{
+				whiteRow1[i] = new Piece(ba, true, new Point(i, 7));
+				blackRow1[i] = new Piece(ba, false, new Point(i, 0));	
+			}
+			
+			if (fr != "")
+			{
+				whiteRow2[i] = new Piece(fr, true, new Point(i, 6));
+				blackRow2[i] = new Piece(fr, false, new Point(i, 1));
+			}
+
 		}
 		
 		board[0] = blackRow1;
@@ -66,7 +116,6 @@ public class Board
 		board[5] = new Piece[8];
 		board[6] = whiteRow2;
 		board[7] = whiteRow1;
-		calculateScore();
 	}
 	
 	public void calculateScore()

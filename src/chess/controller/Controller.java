@@ -34,14 +34,26 @@ public class Controller
 		System.out.print(game.isWhiteTurn ? "White" : "Black");
 		System.out.print("'s Turn: ");
 		nextMove = scanner.nextLine();
-		move = game.parseMove(nextMove);
-		moveError = game.isValidMove(move);
 		
-		if (moveError.equals(""))
-			game.makeMove(move);
+		if (nextMove.equals("score"))
+		{
+			gui.showScore(game);
+		}
+		else if (nextMove.equals("debug"))
+		{
+			//game.board.generate();
+			//game.board.setPiece(new Point("b6"), new Piece("pawn", true));
+		}
 		else
-			System.out.println(moveError);
-		
+		{
+			move = new Movement(nextMove);
+			moveError = game.isValidMove(move);
+			
+			if (moveError.equals(""))
+				game.makeMove(move);
+			else
+				System.out.println("\n" + moveError);
+		}
 		gui.renderBoard(game);
 	}
 }
