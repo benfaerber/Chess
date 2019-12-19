@@ -6,8 +6,8 @@ import chess.model.*;
 
 public class ConsoleGUI
 {
-	public String whiteSquare = "x";
-	public String blackSquare = "o️";
+	public String whiteSquare = "□";
+	public String blackSquare = "■";
 	
 	public boolean isSquareWhite(int x, int y)
 	{

@@ -8,7 +8,7 @@ public class Game
 	public boolean isWhiteTurn = false;
 	public ArrayList<Piece> capturedWhites;
 	public ArrayList<Piece> capturedBlacks;
-	public int gameMode = 2;
+	public int gameMode = 0;
 
 	public Game()
 	{
@@ -17,7 +17,7 @@ public class Game
 		board = new Board(gameMode);
 	}
 
-	public void makeMove(Movement move)
+	public boolean makeMove(Movement move)
 	{
 		Piece piece = board.getPiece(move.from);
 		Piece pieceAtDestination = board.getPiece(move.to);
@@ -34,37 +34,53 @@ public class Game
 
 		piece.hasMoved = true;
 		piece.position = move.to;
-		
-		System.out.println("Check: White " + detectCheck(true) + " Black " + detectCheck(false));
+						
+		//If this causes a piece to be in check, undo and disallow
+		if (isCheck(isWhiteTurn))
+		{
+			board.setPiece(move.from, piece);
+			board.setPiece(move.to, pieceAtDestination);
+			piece.position = move.from;
+			return false;
+		}
 		
 		isWhiteTurn = !isWhiteTurn;
+		return true;
 	}
 
+	// Returns true if the move is valid for the current team
+	public boolean checkProperTeam(Movement move)
+	{
+		Piece movingPiece = board.getPiece(move.from);
+		Piece pieceAtDestination = board.getPiece(move.to);
+		
+		if (movingPiece.isWhite != isWhiteTurn)
+			return false;
+
+		if (pieceAtDestination != null)
+		{
+			if (pieceAtDestination.isWhite == isWhiteTurn)
+				return false;
+			
+			if (pieceAtDestination.name.equals("king"))
+				return false;
+		}
+		
+		return true;
+	}
+	
 	public String isValidMove(Movement move)
 	{
 		if (!move.isValid())
 			return "You typed your move incorrectly!";
 
 		Piece movingPiece = board.getPiece(move.from);
-		Piece pieceAtDestination = board.getPiece(move.to);
 
 		if (move.to.equals(move.from))
 			return "This piece is already here";
 
 		if (movingPiece == null)
 			return "There is no piece here";
-
-		if (movingPiece.isWhite != isWhiteTurn)
-			return "This is not your piece";
-
-		if (pieceAtDestination != null)
-		{
-			if (pieceAtDestination.isWhite == isWhiteTurn)
-				return "You can't capture your own piece";
-			
-			if (pieceAtDestination.name.equals("king"))
-				return "You can't capture the king!";
-		}
 
 		for (int i = 0; i < movingPiece.moves.length; i++)
 		{
@@ -111,10 +127,6 @@ public class Game
 								return "";
 						}
 					}
-					else
-					{
-						return "This move is blocked";
-					}
 				}
 			}
 
@@ -126,44 +138,29 @@ public class Game
 	public boolean isMoveBlocked(Move move, Movement movement)
 	{
 		Point checkpoint = new Point(movement.from.x, movement.from.y);
-		System.out.println(move.toString());
+		
 		for (int i = 0; i < 8; i++)
 		{
 			checkpoint.x += sign(move.rightward);
 			checkpoint.y += sign(move.downward);
 
-			System.out.println(checkpoint.toString());
 			if (checkpoint.equals(movement.to))
 				return false;
 
 			if (checkpoint.isValid())
 			{
-				System.out.println(board.getPiece(checkpoint).toString());
 				if (board.getPiece(checkpoint) != null)
 					return true;
 			}
 		}
-		
 		return true;
-	}
-
-	public boolean isCheck(boolean isWhite)
-	{
-		return detectCheck(isWhite) == 1;
-	}
-
-	public boolean isCheckmate(boolean isWhite)
-	{
-		return detectCheck(isWhite) == 2;
 	}
 
 	// 0 - not check
 	// 1 - check
 	// 2 - checkmate
-	public int detectCheck(boolean isWhite)
-	{
-		int checkState = 0;
-		
+	public boolean isCheck(boolean isWhite)
+	{		
 		ArrayList<Piece> possibleAttackers = new ArrayList<Piece>();
 		Piece king = null;
 		// Loop through all pieces
@@ -185,14 +182,17 @@ public class Game
 		// Scan attackers to find check
 		for (Piece current : possibleAttackers)
 		{
-			Movement killKing = new Movement(current.position, king.position);
-			
+			Movement killKing = new Movement(current.position, king.position);	
 			String errorCode = isValidMove(killKing);
-			if (!errorCode.equals("This is not a valid move") && !errorCode.equals("This move is blocked"))
-				return 1;
+			
+			//Check or checkmate
+			if (errorCode.equals(""))
+			{
+				return true;
+			}
 		}
 
-		return 0;
+		return false;
 	}
 
 	public int sign(int input)

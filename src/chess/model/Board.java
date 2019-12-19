@@ -69,6 +69,9 @@ public class Board
 		case 2:
 			// Debug board
 			generate("rnbkqbnp", "        ");
+		case 3:
+			// Check debug board
+			generate("  pkq   ", "        ");
 		}
 	}
 	
